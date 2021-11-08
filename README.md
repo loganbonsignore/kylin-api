@@ -12,10 +12,9 @@ To run the server with Docker, you'll need to [install Docker](https://www.docke
 docker-compose up -d
 ```
 
-This will start three Docker containers:
+This will start two Docker containers:
 - kylin-api: [Gunicorn](https://gunicorn.org/) server that wraps the Flask app defined in `api/app.py`
 - postgres: [PostgreSQL](https://www.postgresql.org/) database
-- redis: [Redis](https://redis.io/topics/introduction) database and memory cache
 
 You should now be able to send:
 
@@ -41,14 +40,9 @@ pip install -r requirements/common.txt
 
 If you are running a local PostgreSQL instance, create an 'SQLALCHEMY_DATABASE_URI' environment variable:
 ```bash
-export SQLALCHEMY_DATABASE_URI=YOUR_CONNECTION_STRING
+export SQLALCHEMY_DATABASE_URI="YOUR CONNECTION STRING"
 ```
-If you plan on writing to the database, you'll need to create a `parachain_data` and `user` table as defined in `schemas.sql`.
-
-To enable rate limits, declare your 'RATELIMIT_STORAGE_URL' environment variable:
-```bash
-export RATELIMIT_STORAGE_URL=YOUR_CONNECTION_STRING
-```
+If you plan on writing to the database, you'll need to create a `parachain_data` table as defined in `schemas.sql`.
 
 Finally, to boot up the server, run:
 
@@ -59,21 +53,25 @@ bash bin/run.sh
 You should now be able to interact with your server as described above.
 
 ## Example Calls
-Get API key:
-```bash
-curl -d '{"wallet": "YOUR WALLET ADDRESS"}' -H "Content-Type: application/json" "http://localhost:8080/auth/register"
-```
 Get price feed:
 ```bash
-curl -H "x-api-key: YOUR_API_KEY" "http://localhost:8080/prices/spot?currency_pairs=btc_usd"
+curl "http://localhost:8080/prices?currency_pairs=btc_usd"
 ```
+
 Write to database:
 ```bash
-curl -d '{"para_id": "para id", "account_id": "account id", "requested_block_number": "1", "processed_block_number": "1", "requested_timestamp": "1633728007913.35", "processed_timestamp": "1633728007913.35", "payload": "This is json serializable data", "feed_name": "demo_feed", "url": "url"}' -H "x-api-key: YOUR_API_KEY" -H "Content-Type: application/json" "http://localhost:8080/parachain/submit"
+curl -d '{"data": "This is json serializable data", "feed": "demo_feed", "block": "1", "hash": "demo_hash"}' -H "Content-Type: application/json" http://localhost:8080/submit
 ```
 Query database:
 ```bash
-curl -H "x-api-key: YOUR_API_KEY" "http://localhost:8080/parachain/query?feed=demo_feed"
+# select all data
+curl http://localhost:8080/query/all
+
+# select by hash
+curl "http://localhost:8080/query?hash=demo_hash"
+
+# select by feed
+curl "http://localhost:8080/query?feed=demo_feed"
 ```
 
 ## Testing the API
@@ -97,4 +95,4 @@ http://localhost:8080/
 
 You can see the API's specification and try it directly from the swagger UI.  
 
-Inside each namespace you will see the list of the endpoints available. You can test them using the `try_out` button.
+Inside the `default namespace` you will see the list of the endpoints available. You can test them using the `try_out` button.

@@ -38,19 +38,9 @@ class InvalidQueryParam(Exception):
         self.status_code = status_code
         self.payload = payload
 
-class InvalidApiKey(Exception):
+class InvalidPayload(Exception):
     def __init__(self,
-            message="Invalid api key",
-            status_code=401,
-            payload=None):
-        super().__init__(message)
-        self.message = message
-        self.status_code = status_code
-        self.payload = payload
-
-class ExistingUserFound(Exception):
-    def __init__(self,
-            message="Existing user found.",
+            message="Payload is not valid JSON",
             status_code=422,
             payload=None):
         super().__init__(message)
